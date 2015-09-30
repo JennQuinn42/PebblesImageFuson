@@ -45,9 +45,9 @@ class BeadColours{
 	DARK_RED,FLESH, BEIGE,OLIVE_GREEN,CLARET,BURGUNDY,TURQUOISE,PASTEL_YELLOW,PASTEL_RED,PASTEL_PURPLE,PASTEL_BLUE,PASTEL_GREEN,
 	PASTEL_PINK,AZURE,TEDDY_BEAR_BROWN};
 	
-	public static final String[] colorNameArray = {"WHITE","CREAM","YELLOW","ORANGE","RED","PINK","PURPLE","BLUE","LIGHT_BLUE",
-			"GREEN","LIGHT_GREEN","DARK_BROWN","GREY","BLACK","REDDISH_BROWN","LIGHT_BROWN",
-			"DARK_RED","FLESH", "BEIGE","OLIVE_GREEN","CLARET","BURGUNDY","TURQUOISE","PASTEL_YELLOW","PASTEL_RED","PASTEL_PURPLE",
-			"PASTEL_BLUE","PASTEL_GREEN","PASTEL_PINK","AZURE","TEDDY_BEAR_BROWN"};
+	public static final String[] colorNameArray = {"White","Cream","Yellow","Orange","Red","Pink","Purple","Blue","Light Blue",
+			"Green","Light Green","Dark Brown","Grey","Black","Reddish Brown","Light Brown",
+			"Dark Red","Flesh", "Beige","Olive Green","Claret","Burgundy","Turquiose","Pastel Yellow","Pastel Red","Pastel Purple",
+			"Pastel Blue","Pastel Green","Pastel Pink","Azure","Teddy Bear Brown"};
 
 }
