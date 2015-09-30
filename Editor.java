@@ -116,8 +116,10 @@ public class Editor extends JFrame {
 		perlerColourPanel.setLayout(new GridLayout(8, 6, 0, 0));
 		
 		final JPanel currentColourPanel = new JPanel();
-		currentColourPanel.setBounds(100, 11, 24, 17);
+		
 		currentColourPanel.setBackground(Color.BLUE);
+		
+		final JLabel lblColourChooser = new JLabel("Colour Chooser");
 		
 		ActionListener colorPressedListener = new ActionListener(){
 
@@ -127,8 +129,16 @@ public class Editor extends JFrame {
 				Color col = cb.getColor();
 				
 				currentColourPanel.setBackground(col);
-				
-				
+				int colourIndex = -1;
+				for(int i = 0; i < BeadColours.colorArray.length; i++){
+					if(col.equals(BeadColours.colorArray[i])){
+						colourIndex = i;
+						break;
+					}
+				}
+				String colourName = BeadColours.colorNameArray[colourIndex];
+				lblColourChooser.setText(colourName);
+			
 			}
 			
 		};
@@ -150,13 +160,16 @@ public class Editor extends JFrame {
 		
 		final JPanel hamaColourPanel = new JPanel();
 		hamaPanel.add(hamaColourPanel, BorderLayout.CENTER);
-		hamaColourPanel.setLayout(new GridLayout(8, 6, 0, 0));
+		hamaColourPanel.setLayout(new GridLayout(4, 6, 0, 0));
 		
-		for(int i = 0; i < 48; i++){
-			ColourButton temp = new ColourButton(Color.BLUE);
+		//Add hama bead colours
+		Color[] hamaColoursArray = BeadColours.colorArray;
+		for(int i = 0; i < hamaColoursArray.length; i++){
+			ColourButton temp = new ColourButton(hamaColoursArray[i]);
 			temp.addActionListener(colorPressedListener);
 			hamaColourPanel.add(temp);
 		}
+	
 		
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 121, 150, 39);
@@ -165,12 +178,11 @@ public class Editor extends JFrame {
 		toolsPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		panel.setLayout(null);
 		
-		JLabel lblColourChooser = new JLabel("Colour Chooser");
-		lblColourChooser.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblColourChooser.setBounds(10, 11, 92, 17);
+		lblColourChooser.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel.add(lblColourChooser);
-		
-		
+		lblColourChooser.setBounds(35, 11, 112, 17);
+		currentColourPanel.setBounds(5, 11, 24, 17);
+
 		panel.add(currentColourPanel);
 		
 		final JPanel editor = new JPanel();
@@ -187,6 +199,7 @@ public class Editor extends JFrame {
 				perlerColourPanel.setVisible(!perlerColourPanel.isVisible());
 			}
 		});
+		tglbtnPerlerBeads.doClick();
 		tglbtnHama.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				hamaColourPanel.setVisible(!hamaColourPanel.isVisible());
