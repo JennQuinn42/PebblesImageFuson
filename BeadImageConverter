@@ -81,21 +81,6 @@ public class BeadImageConvertor {
 			}
 		}
 
-		newIm = new BufferedImage(200, 100, bufferedImage.getType());
-		graphics = newIm.getGraphics();
-		int x = -20;
-		int y = 0;
-		System.out.println(BeadColors.colorArray.length);
-		for(Color c : BeadColors.colorArray){
-			if(x >= 180){
-				x = -20;
-				y += 20;
-			}
-
-			graphics.setColor(c);
-			graphics.fillRect(x += 20, y, 20, 20);
-			System.out.println("x:"+ x + " y: " + y);
-		}
 		// output file
 		ImageIO.write(newIm, ext.substring(1), outputFile);
 
