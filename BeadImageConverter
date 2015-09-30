@@ -5,13 +5,15 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-public class BeadImageConvertor {
+public class BeadImageConverter {
 
 	public static void main(String[] args){
 
@@ -46,6 +48,114 @@ public class BeadImageConvertor {
 		JOptionPane.showMessageDialog(null, "Conversion complete!");
 	}
 
+	public static void cleanUpPixalatedImage(int pixelSize, BufferedImage image){
+
+		Graphics graphics = image.getGraphics();
+
+		// loop through the image
+		for(int w = 0 ; w < image.getWidth() ; w+=pixelSize)
+		{
+			for(int h = 0 ; h < image.getHeight() ; h+=pixelSize)
+			{
+				
+				HashMap<Color,Integer> commonData = new HashMap<Color,Integer>();;
+
+				//Get a pixel
+				Color pixelColor = new Color(image.getRGB(w, h));
+
+				
+				//Get an array of the pixels surrounding that pixel, 5x5
+				getPixelsAround(w, h, image, commonData);
+
+				for(Color c : commonData.keySet()){
+					System.out.println(commonData.get(c));
+					System.out.println("col: " + c);
+				}
+				System.out.println("-------------------------");
+				
+				//Check if the pixel matches or is similar to the most common colours
+				boolean endIteration = false;
+				for(Color c : commonData.keySet()){
+					if(c.equals(pixelColor)){
+						System.out.println("SAME COLOUR FOUND");
+						if(commonData.get(c) > 9){
+							endIteration = true;
+						}
+					}
+				}
+				if(endIteration){
+					continue;
+				}
+				//else change the pixel colour to the most common
+				
+				Integer maxValue = Collections.max(commonData.values());
+
+				Color mostCommon = pixelColor;
+				
+				for(Color c: commonData.keySet()){
+					if(commonData.get(c).equals(maxValue)){
+						mostCommon = c;
+					}
+				}
+
+
+				graphics.setColor(mostCommon);
+				graphics.fillRect(w, h, pixelSize , pixelSize);
+
+
+
+
+			}
+		}
+
+	}
+	
+	
+	private static void getPixelsAround(int x, int y, BufferedImage image, HashMap<Color, Integer> commonData){
+
+		int area = 5;
+
+		int offsetX = x - area;
+
+		int offsetY = y - area;
+
+		for(int i = 0; i < area*2; i++, offsetX++){
+			for(int j = 0; j < area*2; j++,offsetY++){
+
+				//check that offsets are in bounds
+				if(offsetX < 0 || offsetX > image.getWidth()-1){
+					continue;
+				}
+				if(offsetY < 0 || offsetY > image.getHeight()-1){
+					continue;
+				}
+				
+				
+				Color pixel = new Color(image.getRGB(offsetX, offsetY));
+
+				//check if the colour is already in the colours list and add it if it's not
+				boolean alreadyInList = false;
+
+				for(Color c : commonData.keySet()){
+					if(c.equals(pixel)){
+						alreadyInList = true;
+						commonData.put(c, commonData.get(c) + 1);
+						break;
+					}
+				}
+				if(!alreadyInList){
+					//colours.add(pixel);
+					commonData.put(pixel, 1);
+				}
+
+
+			}
+			
+			offsetY -= area*2;
+		}
+		
+
+	}
 
 
 	public static void pixelateFile(int pixelSize, File inputFile, File outputFile, String ext) throws IOException
@@ -74,13 +184,14 @@ public class BeadImageConvertor {
 
 				if(!pixelColor.equals(tempColor)){
 
-					graphics.setColor(getMostSimilarColor(BeadColors.colorArray,pixelColor));
+					graphics.setColor(getMostSimilarColor(BeadColours.colorArray,pixelColor));
 					graphics.fillRect(w, h, pixelSize, pixelSize);
 				}
 
 			}
 		}
 
+		cleanUpPixalatedImage(3, newIm);
 		// output file
 		ImageIO.write(newIm, ext.substring(1), outputFile);
 
