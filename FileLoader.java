@@ -1,6 +1,7 @@
 package com.jt.beads;
 
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -22,26 +23,56 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileLoader {
 
+	/**
+	 * Method to ask the user to pick an image and 
+	 * load it into the application
+	 * @return BufferedImage retrieved by fileChooser
+	 */
+//	public Color[][] read() {
+//		BufferedImage pickedImage = null;
+//		File imageName = getSourceFilename();
+//		Color[][] beads = null;
+//		// Make sure input file is valid before trying to open it
+//		if (imageName != null ) {
+//			// open image for input
+//			BufferedImage inFile = null;
+//			try {
+//				inFile = ImageIO.read(imageName);
+//
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			pickedImage = inFile;
+//			Pixelator pixel = new Pixelator();
+//			beads = pixel.pixelate(pickedImage, 6);
+//		}
+//		return beads;
+//	}
+
 	public BufferedImage read() {
 		BufferedImage pickedImage = null;
 		File imageName = getSourceFilename();
+		Color[][] beads = null;
 		// Make sure input file is valid before trying to open it
-	    if (imageName != null ) {
-	        // open image for input
-	    	 BufferedImage inFile = null;
-				try {
-					inFile = ImageIO.read(imageName);
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-	    	   pickedImage = inFile;
-	    }
-	    return pickedImage;
+		if (imageName != null ) {
+			// open image for input
+			BufferedImage inFile = null;
+			try {
+				inFile = ImageIO.read(imageName);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			pickedImage = inFile;
+			Pixelator pixel = new Pixelator();
+			pickedImage = pixel.pixelate(pickedImage, 3);
+		}
+		return pickedImage;
 	}
-	
+
 	/**
 	 * Bring up the file selector window to get a filename for loading
+	 * @return File to be loaded/saved
 	 */
 	static public File getSourceFilename () {
 		JFileChooser jfc = new JFileChooser(System.getProperty("user.dir"));
