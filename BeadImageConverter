@@ -1,6 +1,5 @@
 package com.jt.beads;
 
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -12,7 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-public class BeadImageConverter {
+public class BeadImageConvertor {
 
 	public static void main(String[] args){
 
@@ -37,7 +36,7 @@ public class BeadImageConverter {
 				pixelateFile(3,image,newImage,imageFileExtension);
 				System.out.println("Conversion complete");
 			}
-			
+
 			input.close();
 
 		}catch(Exception e){
@@ -46,6 +45,8 @@ public class BeadImageConverter {
 
 		JOptionPane.showMessageDialog(null, "Conversion complete!");
 	}
+
+
 
 	public static void pixelateFile(int pixelSize, File inputFile, File outputFile, String ext) throws IOException
 	{
@@ -72,17 +73,52 @@ public class BeadImageConverter {
 				Color pixelColor = new Color(bufferedImage.getRGB(w, h));
 
 				if(!pixelColor.equals(tempColor)){
-					graphics.setColor(pixelColor);
+
+					graphics.setColor(getMostSimilarColor(BeadColors.colorArray,pixelColor));
 					graphics.fillRect(w, h, pixelSize, pixelSize);
 				}
 
 			}
 		}
 
+		newIm = new BufferedImage(200, 100, bufferedImage.getType());
+		graphics = newIm.getGraphics();
+		int x = -20;
+		int y = 0;
+		System.out.println(BeadColors.colorArray.length);
+		for(Color c : BeadColors.colorArray){
+			if(x >= 180){
+				x = -20;
+				y += 20;
+			}
+
+			graphics.setColor(c);
+			graphics.fillRect(x += 20, y, 20, 20);
+			System.out.println("x:"+ x + " y: " + y);
+		}
 		// output file
 		ImageIO.write(newIm, ext.substring(1), outputFile);
 
 	}
+
+	public static Color getMostSimilarColor(Color[] colorRange, Color checkColor){
+
+		double distance = Double.MAX_VALUE;
+		Color mostSimilar = colorRange[0];
+
+		for(Color c : colorRange){
+			double tempDistance = colourDistance(c,checkColor);
+			if(tempDistance < distance){
+				distance = tempDistance;
+				mostSimilar = c;
+			}
+		}
+
+
+		return mostSimilar;
+
+	}
+
 
 
 	public static double colourDistance(Color c1, Color c2)
