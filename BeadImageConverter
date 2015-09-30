@@ -1,0 +1,98 @@
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
+public class BeadImageConverter {
+
+	public static void main(String[] args){
+
+		try{
+
+			Scanner input = new Scanner(System.in);
+			JFileChooser imageChooser = new JFileChooser();
+			imageChooser.setDialogTitle("Please choose an image to convert:");
+			imageChooser.showOpenDialog(null);
+			File image = imageChooser.getSelectedFile();//new File(input.next() + ".jpg");
+			String imageFileExtension = image.getName().substring(image.getName().length()-4);//.toLowerCase();
+			String imageFileName = image.getName().substring(0, image.getName().length()-4);
+
+			imageChooser.setDialogTitle("Please choose a directory to save the converted images");
+			imageChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			imageChooser.showOpenDialog(null);
+			String saveDirectory = imageChooser.getSelectedFile().getAbsolutePath() + "\\";
+
+			{
+				System.out.println("Converting image");
+				File newImage = new File(saveDirectory + imageFileName +  3 + "pixel" + imageFileExtension);
+				pixelateFile(3,image,newImage,imageFileExtension);
+				System.out.println("Conversion complete");
+			}
+			
+			input.close();
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		JOptionPane.showMessageDialog(null, "Conversion complete!");
+	}
+
+	public static void pixelateFile(int pixelSize, File inputFile, File outputFile, String ext) throws IOException
+	{
+
+		// get a BufferedImage object from file
+		BufferedImage bufferedImage = ImageIO.read(inputFile);
+		Color tempColor = new Color(123,121,164);
+		BufferedImage newIm = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+		Graphics graphics = newIm.getGraphics();
+		graphics.setColor(tempColor);
+		graphics.fillRect(0, 0, newIm.getWidth(),newIm.getHeight());
+		BufferedImage temp = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+		temp.getGraphics().drawImage(newIm, 0, 0, null);
+		temp.getGraphics().drawImage(bufferedImage, 0, 0, null);
+		bufferedImage = temp;
+		newIm = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+		graphics = newIm.getGraphics();
+
+		// loop through the image and produce squares pixelSize*pixelSize
+		for(int w = 0 ; w < bufferedImage.getWidth() ; w+=pixelSize)
+		{
+			for(int h = 0 ; h < bufferedImage.getHeight() ; h+=pixelSize)
+			{
+				Color pixelColor = new Color(bufferedImage.getRGB(w, h));
+
+				if(!pixelColor.equals(tempColor)){
+					graphics.setColor(pixelColor);
+					graphics.fillRect(w, h, pixelSize, pixelSize);
+				}
+
+			}
+		}
+
+		// output file
+		ImageIO.write(newIm, ext.substring(1), outputFile);
+
+	}
+
+
+	public static double colourDistance(Color c1, Color c2)
+	{
+		double rmean = ( c1.getRed() + c2.getRed() )/2;
+		int r = c1.getRed() - c2.getRed();
+		int g = c1.getGreen() - c2.getGreen();
+		int b = c1.getBlue() - c2.getBlue();
+		double weightR = 2 + rmean/256;
+		double weightG = 4.0;
+		double weightB = 2 + (255-rmean)/256;
+		return Math.sqrt(weightR*r*r + weightG*g*g + weightB*b*b);
+	}
+
+
+}
