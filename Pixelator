@@ -1,0 +1,76 @@
+package com.jt.beads;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+public class Pixelator {
+
+	public BufferedImage pixelate(BufferedImage image){
+		// How big should the pixelations be?
+		final int PIX_SIZE = 10;
+		ArrayList<int[]> pixelRange = new ArrayList<int[]>(100);
+
+		// Get the raster data (array of pixels)
+		Raster src = image.getData();
+
+		// Create an identically-sized output raster
+		WritableRaster dest = src.createCompatibleWritableRaster();
+
+		// Loop through every PIX_SIZE pixels, in both x and y directions
+		for(int y = 0; y < src.getHeight(); y += PIX_SIZE) {
+		    for(int x = 0; x < src.getWidth(); x += PIX_SIZE) {
+
+		        // Copy the pixel
+		        int[] pixel = new int[3];
+//		        pixel = src.getPixel(x, y, pixel);
+
+		        // "Paste" the pixel onto the surrounding PIX_SIZE by PIX_SIZE neighbors
+		        // Also make sure that our loop never goes outside the bounds of the image
+		        for(int yd = y; (yd < y + PIX_SIZE) && (yd < dest.getHeight()); yd++) {
+		            for(int xd = x; (xd < x + PIX_SIZE) && (xd < dest.getWidth()); xd++) {
+		            	pixel = src.getPixel(xd, yd, pixel);
+		            	pixelRange.add(pixel);
+		                //dest.setPixel(xd, yd, pixel);
+		            }
+		        }
+		        int sumR = 0;
+		        int sumG = 0;
+		        int sumB = 0;
+		        
+		        for(int[] pix:pixelRange){
+		        	for(int i = 0; i < pix.length; ++i){
+		        		if(i == 0){
+		        			sumR += pix[i];
+		        		} 
+		        		else if(i == 1){
+		        			sumR += pix[i];
+		        		}
+		        		else if(i == 2){
+		        			sumR += pix[i];
+		        		}
+		        	}
+		        }
+		        
+		        pixel = new int[]{(sumR/100), (sumG/100), (sumB/100)};
+		        
+		        for(int yd = y; (yd < y + PIX_SIZE) && (yd < dest.getHeight()); yd++) {
+		            for(int xd = x; (xd < x + PIX_SIZE) && (xd < dest.getWidth()); xd++) {
+		                dest.setPixel(xd, yd, pixel);
+		            }
+		        }
+		        
+		    }
+		}
+
+		// Save the raster back to the Image
+		image.setData(dest);
+
+		return image;
+	}
+		
+}
