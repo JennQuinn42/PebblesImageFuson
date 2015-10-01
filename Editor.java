@@ -324,18 +324,17 @@ public class Editor extends JFrame {
 
 		if(beads != null){
 			editor.removeAll();
-			editor.setLayout(new GridLayout(beads[0].length, beads.length, 1, 1));
-			//editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
-			//editor.setLayout(new GridLayout(1, beads.length, 1, 1));
+			editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
 			
 			for(int i = 0; i < beads[0].length; ++i){
+				JPanel row = new JPanel(new GridLayout(1,beads.length,1,0));
 				for(int j = 0; j < beads.length; ++j){
 					final JPanel temp = new JPanel();
 					temp.setSize(size, size);
 					temp.setBackground(beads[j][i]);
 					boardPanels[j][i] = temp;
-					editor.add(temp);
-					
+					//editor.add(temp);
+					row.add(temp);
 					temp.setToolTipText(BeadColours.getNameWithColour(beads[j][i]));
 					temp.addMouseListener(new MouseListener(){
 
@@ -362,15 +361,15 @@ public class Editor extends JFrame {
 					//editor.paintComponents(editor.getGraphics());
 					
 				}
+				editor.add(row);
 				System.out.println("line " + (i+1) + " of " + beads[0].length);
 			}
 			
 			
-		}
-		else{
+		}else{
 			lblViewImage.setText("Did not load Image correctly");
 		}
-
+		
 		repaint();
 	
 	}
