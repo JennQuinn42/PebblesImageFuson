@@ -27,6 +27,7 @@ import java.awt.Font;
 
 public class Editor extends JFrame {
 
+	
 	/**
 	 * 
 	 */
@@ -49,6 +50,8 @@ public class Editor extends JFrame {
 			}
 		});
 	}
+	
+
 
 	/**
 	 * Create the frame.
@@ -184,7 +187,7 @@ public class Editor extends JFrame {
 		panel.add(lblColourChooser);
 		lblColourChooser.setBounds(35, 11, 112, 17);
 		currentColourPanel.setBounds(5, 11, 24, 17);
-
+		currentColourPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		panel.add(currentColourPanel);
 		
 		final JPanel editor = new JPanel();
@@ -215,36 +218,15 @@ public class Editor extends JFrame {
 				
 				OpenDialog openDialog = createDialog();
 				openDialog.setVisible(true);
-				/*
-				ImageIcon pickedImage = null;
-				
-				BufferedImage image;
-				FileLoader fl = new FileLoader();
-				image = fl.read();
-				if(image != null){
-					if(image.getHeight() < lblNewLabel.getHeight() && image.getWidth() < lblNewLabel.getWidth()){
-						pickedImage = new ImageIcon(image);
-					}else{
-						pickedImage = new ImageIcon(image.getScaledInstance(editor.getWidth(), 
-								editor.getHeight(), Image.SCALE_SMOOTH));
-					}
-					lblNewLabel.setIcon(pickedImage);
-					lblNewLabel.setText("");
-				}
-				else{
-					lblNewLabel.setText("Did not load Image correctly");
-				}
-				
-				repaint();*/
-				
+		
 			}
 			
 		});
 	}
 	
-	public void loadImage(BufferedImage image, int size, String colourRange){
+	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp){
 		try {
-			image = BeadImageConverter.pixelateImage(size, image);
+			image = BeadImageConverter.pixelateImage(size, image,doCleanUp);
 			
 		} catch (IOException e) {
 			
