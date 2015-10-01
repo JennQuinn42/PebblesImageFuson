@@ -5,12 +5,11 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -85,6 +84,10 @@ public class OpenDialog extends JDialog {
 		spinner.setBounds(10, 129, 66, 20);
 		contentPanel.add(spinner);
 		
+		final JCheckBox doCleanUp = new JCheckBox("Clean up?");
+		doCleanUp.setBounds(105,129, 90,20);
+		contentPanel.add(doCleanUp);
+		
 		JButton loadButton = new JButton("Load Image");
 		loadButton.setBounds(10, 165, 100, 23);
 		contentPanel.add(loadButton);
@@ -92,7 +95,8 @@ public class OpenDialog extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				frame.loadImage(imageFile, (int)spinner.getValue(),(String)comboBox.getSelectedItem());			
+				frame.loadImage(imageFile, (int)spinner.getValue(),(String)comboBox.getSelectedItem(),doCleanUp.isSelected());	
+				((JDialog)contentPanel.getParent().getParent().getParent().getParent()).dispose();			
 			}
 			
 		});
