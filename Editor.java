@@ -5,31 +5,34 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
-
-
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-
-import java.awt.Font;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Editor extends JFrame {
 
@@ -42,6 +45,8 @@ public class Editor extends JFrame {
 	final JLabel lblViewImage;
 	final JLayeredPane editor;
 	private Color currentSelection = BeadColours.colorArray[0];
+	private JPanel[][] boardPanels;
+	private BufferedImage lastLoadedImage;
 
 	/**
 	 * Launch the application.
@@ -77,6 +82,17 @@ public class Editor extends JFrame {
 		
 		JMenuItem mntmOpen = new JMenuItem("Open");
 		mnMenu.add(mntmOpen);
+		
+		JMenuItem mntmSave = new JMenuItem("Save Image");
+		mntmSave.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				saveImage();
+			}
+			
+		});
+		mnMenu.add(mntmSave);
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(new ActionListener() {
@@ -246,24 +262,80 @@ public class Editor extends JFrame {
 		});
 	}
 	
+	private void saveImage(){
+		final BufferedImage image = new BufferedImage(lastLoadedImage.getWidth(),lastLoadedImage.getWidth(),lastLoadedImage.getType());
+		
+		if(boardPanels != null){
+			
+			Graphics g = image.getGraphics();
+			int pixelSize = 3;
+			for(int w = 0 ; w < boardPanels.length; w ++)
+			{
+				for(int h = 0 ; h < boardPanels[0].length; h++)
+				{
+					g.setColor(boardPanels[w][h].getBackground());
+					g.fillRect(w, h, pixelSize, pixelSize);
+
+				}
+			}
+			
+		}
+		
+		JFileChooser saver = new JFileChooser();
+		saver.setDialogTitle("Please choose a location to save..");
+		//saver.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		//saver.showOpenDialog(this);
+		saver.showSaveDialog(this);
+		//FileFilter filter = new FileNameExtensionFilter("Image file","png");
+		//saver.setFileFilter(filter);
+		
+		String tempPath = saver.getSelectedFile().getAbsolutePath();
+		if(!tempPath.endsWith(".png")){
+			tempPath += ".png";
+		}
+		final String path = tempPath;
+		//System.out.println(image);
+		//System.out.println(".png");
+		//System.out.println(path);
+		
+		new Thread(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					ImageIO.write(image, "png", new File(path));
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Error when saving image..");
+				}
+			}
+			
+		}).start();
+	}
+	
 	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp){
 		
+		if(image != null){
+			lastLoadedImage = image;
+		}
 		Color[][] beads = Pixelator.pixelate(size, image, true);
-		
+		boardPanels = new JPanel[beads.length][beads[0].length];
+		System.out.println("pixelated");
 		ImageIcon pickedImage = null;
 
 		if(beads != null){
 			editor.removeAll();
 			editor.setLayout(new GridLayout(beads[0].length, beads.length, 1, 1));
-			
-			
+			//editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
+			//editor.setLayout(new GridLayout(1, beads.length, 1, 1));
 			
 			for(int i = 0; i < beads[0].length; ++i){
 				for(int j = 0; j < beads.length; ++j){
 					final JPanel temp = new JPanel();
 					temp.setSize(size, size);
 					temp.setBackground(beads[j][i]);
+					boardPanels[j][i] = temp;
 					editor.add(temp);
+					
 					temp.setToolTipText(BeadColours.getNameWithColour(beads[j][i]));
 					temp.addMouseListener(new MouseListener(){
 
@@ -286,8 +358,11 @@ public class Editor extends JFrame {
 						public void mouseReleased(MouseEvent arg0) {}
 						
 					});
+					
 					//editor.paintComponents(editor.getGraphics());
+					
 				}
+				System.out.println("line " + (i+1) + " of " + beads[0].length);
 			}
 			
 			
