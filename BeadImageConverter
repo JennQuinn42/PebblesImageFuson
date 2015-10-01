@@ -14,7 +14,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class BeadImageConverter {
-
+/*
 	public static void main(String[] args){
 
 		try{
@@ -47,7 +47,7 @@ public class BeadImageConverter {
 
 		JOptionPane.showMessageDialog(null, "Conversion complete!");
 	}
-
+*/
 	public static void cleanUpPixalatedImage(int pixelSize, BufferedImage image){
 
 		Graphics graphics = image.getGraphics();
@@ -65,19 +65,24 @@ public class BeadImageConverter {
 
 				
 				//Get an array of the pixels surrounding that pixel, 5x5
-				getPixelsAround(w, h, image, commonData);
+				//if(pixelColor.equals(BeadColours.BLACK) || pixelColor.equals(BeadColours.DARK_GREY)|| pixelColor.equals(BeadColours.GREY)|| pixelColor.equals(BeadColours.LIGHT_GREY)){
+				//	continue;
+				//}else{
+					getPixelsAround(w, h, image, commonData);
+				//}
+				
 
-				for(Color c : commonData.keySet()){
-					System.out.println(commonData.get(c));
-					System.out.println("col: " + c);
-				}
-				System.out.println("-------------------------");
+				//for(Color c : commonData.keySet()){
+					//System.out.println(commonData.get(c));
+					//System.out.println("col: " + c);
+				//}
+				//System.out.println("-------------------------");
 				
 				//Check if the pixel matches or is similar to the most common colours
 				boolean endIteration = false;
 				for(Color c : commonData.keySet()){
 					if(c.equals(pixelColor)){
-						System.out.println("SAME COLOUR FOUND");
+						//System.out.println("SAME COLOUR FOUND");
 						if(commonData.get(c) > 9){
 							endIteration = true;
 						}
@@ -137,6 +142,7 @@ public class BeadImageConverter {
 				boolean alreadyInList = false;
 
 				for(Color c : commonData.keySet()){
+					
 					if(c.equals(pixel)){
 						alreadyInList = true;
 						commonData.put(c, commonData.get(c) + 1);
@@ -194,6 +200,46 @@ public class BeadImageConverter {
 		cleanUpPixalatedImage(3, newIm);
 		// output file
 		ImageIO.write(newIm, ext.substring(1), outputFile);
+
+	}
+	
+	public static BufferedImage pixelateImage(int pixelSize, BufferedImage bufferedImage,boolean doCleanUp) throws IOException
+	{
+
+		// get a BufferedImage object from file
+		Color tempColor = new Color(123,121,164);
+		BufferedImage newIm = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+		Graphics graphics = newIm.getGraphics();
+		graphics.setColor(tempColor);
+		graphics.fillRect(0, 0, newIm.getWidth(),newIm.getHeight());
+		BufferedImage temp = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+		temp.getGraphics().drawImage(newIm, 0, 0, null);
+		temp.getGraphics().drawImage(bufferedImage, 0, 0, null);
+		bufferedImage = temp;
+		newIm = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+		graphics = newIm.getGraphics();
+
+		// loop through the image and produce squares pixelSize*pixelSize
+		for(int w = 0 ; w < bufferedImage.getWidth() ; w+=pixelSize)
+		{
+			for(int h = 0 ; h < bufferedImage.getHeight() ; h+=pixelSize)
+			{
+				Color pixelColor = new Color(bufferedImage.getRGB(w, h));
+
+				if(!pixelColor.equals(tempColor)){
+
+					graphics.setColor(getMostSimilarColor(BeadColours.colorArray,pixelColor));
+					graphics.fillRect(w, h, pixelSize, pixelSize);
+				}
+
+			}
+		}
+		if(doCleanUp){
+			cleanUpPixalatedImage(3, newIm);
+		}
+		return newIm;
+		
+		
 
 	}
 
