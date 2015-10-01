@@ -29,6 +29,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
@@ -265,6 +266,8 @@ public class Editor extends JFrame {
 	private void saveImage(){
 		final BufferedImage image = new BufferedImage(lastLoadedImage.getWidth(),lastLoadedImage.getWidth(),lastLoadedImage.getType());
 		
+		Color temp = new Color(238,238,238);
+		
 		if(boardPanels != null){
 			
 			Graphics g = image.getGraphics();
@@ -273,8 +276,11 @@ public class Editor extends JFrame {
 			{
 				for(int h = 0 ; h < boardPanels[0].length; h++)
 				{
-					g.setColor(boardPanels[w][h].getBackground());
-					g.fillRect(w, h, pixelSize, pixelSize);
+					if(!temp.equals(boardPanels[w][h].getBackground())){
+						g.setColor(boardPanels[w][h].getBackground());
+						g.fillRect(w*pixelSize, h*pixelSize, pixelSize, pixelSize);
+					}
+					
 
 				}
 			}
@@ -283,21 +289,15 @@ public class Editor extends JFrame {
 		
 		JFileChooser saver = new JFileChooser();
 		saver.setDialogTitle("Please choose a location to save..");
-		//saver.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		//saver.showOpenDialog(this);
+		
 		saver.showSaveDialog(this);
-		//FileFilter filter = new FileNameExtensionFilter("Image file","png");
-		//saver.setFileFilter(filter);
 		
 		String tempPath = saver.getSelectedFile().getAbsolutePath();
 		if(!tempPath.endsWith(".png")){
 			tempPath += ".png";
 		}
 		final String path = tempPath;
-		//System.out.println(image);
-		//System.out.println(".png");
-		//System.out.println(path);
-		
+	
 		new Thread(new Runnable(){
 
 			@Override
@@ -312,7 +312,7 @@ public class Editor extends JFrame {
 		}).start();
 	}
 	
-	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp){
+	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp,JProgressBar bar){
 		
 		if(image != null){
 			lastLoadedImage = image;
@@ -321,7 +321,7 @@ public class Editor extends JFrame {
 		boardPanels = new JPanel[beads.length][beads[0].length];
 		System.out.println("pixelated");
 		ImageIcon pickedImage = null;
-
+		bar.setMaximum(beads[0].length);
 		if(beads != null){
 			editor.removeAll();
 			editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
@@ -333,7 +333,7 @@ public class Editor extends JFrame {
 					temp.setSize(size, size);
 					temp.setBackground(beads[j][i]);
 					boardPanels[j][i] = temp;
-					//editor.add(temp);
+
 					row.add(temp);
 					temp.setToolTipText(BeadColours.getNameWithColour(beads[j][i]));
 					temp.addMouseListener(new MouseListener(){
@@ -358,11 +358,10 @@ public class Editor extends JFrame {
 						
 					});
 					
-					//editor.paintComponents(editor.getGraphics());
+					
 					
 				}
 				editor.add(row);
-				System.out.println("line " + (i+1) + " of " + beads[0].length);
 			}
 			
 			
