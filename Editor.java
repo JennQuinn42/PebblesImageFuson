@@ -23,17 +23,20 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+
 import java.awt.Font;
+import java.awt.Graphics;
 
 public class Editor extends JFrame {
 
-	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1905868719577381583L;
 	private JPanel contentPane;
-	final JLabel lblNewLabel;
+	final JLabel lblViewImage;
+	final JLayeredPane editor;
 
 	/**
 	 * Launch the application.
@@ -50,8 +53,6 @@ public class Editor extends JFrame {
 			}
 		});
 	}
-	
-
 
 	/**
 	 * Create the frame.
@@ -187,18 +188,27 @@ public class Editor extends JFrame {
 		panel.add(lblColourChooser);
 		lblColourChooser.setBounds(35, 11, 112, 17);
 		currentColourPanel.setBounds(5, 11, 24, 17);
-		currentColourPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
 		panel.add(currentColourPanel);
-		
-		final JPanel editor = new JPanel();
+
+		editor = new JLayeredPane();
 		contentPane.add(editor, BorderLayout.CENTER);
-		editor.setLayout(new FlowLayout());
-		
-		lblNewLabel = new JLabel();
-		editor.add(lblNewLabel);
-		lblNewLabel.setBounds(10, 11, 414, 206);
-		
-		
+		editor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+		editor.setLayout(new GridLayout());
+		//editor.setLayout(new FlowLayout());
+
+		lblViewImage = new JLabel();
+		editor.add(lblViewImage, JLayeredPane.DEFAULT_LAYER);
+		lblViewImage.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+		lblViewImage.setBounds(10, 11, 414, 206);
+
+		//		GridLabel grid = new GridLabel();
+		//		editor.add(grid, JLayeredPane.PALETTE_LAYER);
+		//		
+		//		editor.setPosition(grid, editor.getPosition(lblViewImage));
+		//grid.setLocation(editor.getX() - editor.getWidth()/2, editor.getY() - editor.getHeight()/2);
+
+
 		tglbtnPerlerBeads.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				perlerColourPanel.setVisible(!perlerColourPanel.isVisible());
@@ -210,7 +220,7 @@ public class Editor extends JFrame {
 				hamaColourPanel.setVisible(!hamaColourPanel.isVisible());
 			}
 		});
-		
+
 		mntmOpen.addActionListener(new ActionListener(){
 
 			@Override
@@ -218,42 +228,80 @@ public class Editor extends JFrame {
 				
 				OpenDialog openDialog = createDialog();
 				openDialog.setVisible(true);
-		
+				
+//				BufferedImage image;
+//				FileLoader fl = new FileLoader();
+//				ImageIcon pickedImage = null;
+//				Color[][] beads = null;
+//				//beads = fl.read();
+//				image = fl.read();
+//				if(image != null){
+//					pickedImage = new ImageIcon(image);
+//					if(image.getHeight() > lblViewImage.getHeight() || image.getWidth() > lblViewImage.getWidth()){
+//						lblViewImage.setSize(image.getWidth(), image.getHeight());
+//					}
+//					lblViewImage.setIcon(pickedImage);
+//					lblViewImage.setText("");
+//				}
+//				if(beads != null){
+//
+//				}
+//				else{
+//					lblViewImage.setText("Did not load Image correctly");
+//				}
+//				//				grid.setSize(image.getWidth(), image.getHeight());;
+//				//
+//				//				grid.setImage(image);
+//
+//				repaint();
+//				//				grid.repaint();
 			}
-			
+
 		});
 	}
-	
-	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp){
-		try {
-			image = BeadImageConverter.pixelateImage(size, image,doCleanUp);
-			
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
+
+	public void loadImage(BufferedImage image, int size, String colourRange){
+		//image = Pixelator.pixelate(image, size);
+		Color[][] beads = Pixelator.pixelate(size, image, true);
+		
 		ImageIcon pickedImage = null;
-		if(image != null){
-			if(image.getHeight() < lblNewLabel.getHeight() && image.getWidth() < lblNewLabel.getWidth()){
-				pickedImage = new ImageIcon(image);
-			}else{
-				pickedImage = new ImageIcon(image.getScaledInstance(this.getWidth(), 
-						this.getHeight(), Image.SCALE_SMOOTH));
+//		if(image != null){
+//			pickedImage = new ImageIcon(image);
+//			if(image.getHeight() > lblViewImage.getHeight() || image.getWidth() > lblViewImage.getWidth()){
+//				lblViewImage.setSize(image.getWidth(), image.getHeight());
+//			}
+//			lblViewImage.setIcon(pickedImage);
+//			lblViewImage.setText("");
+//			editor.setBackground(Color.BLACK);
+//			editor.setLayout(new GridLayout());
+//		}
+		if(beads != null){
+			editor.removeAll();
+			editor.setLayout(new GridLayout(beads[0].length, beads.length, size, size));
+			
+			for(int i = 0; i < beads[0].length; ++i){
+				for(int j = 0; j < beads.length; ++j){
+					JPanel temp = new JPanel();
+					temp.setSize(size, size);
+					temp.setBackground(beads[j][i]);
+					editor.add(temp);
+				}
 			}
-			lblNewLabel.setIcon(pickedImage);
-			lblNewLabel.setText("");
 		}
 		else{
-			lblNewLabel.setText("Did not load Image correctly");
+			lblViewImage.setText("Did not load Image correctly");
 		}
-		
+
+		//editor.setBackground(Color.BLACK);
 		repaint();
 	}
-	
+
 	public OpenDialog createDialog(){
 		OpenDialog od = new OpenDialog(this);
 		od.setVisible(true);
-		
+
 		return od;
 	}
+
 }
+
