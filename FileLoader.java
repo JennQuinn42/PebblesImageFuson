@@ -23,33 +23,37 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FileLoader {
 
+private String lastLoadedImageName;
+	
+	public String getLastLoadedImageName(){
+		return lastLoadedImageName;
+	}
+
+	public BufferedImage read() {
+		BufferedImage pickedImage = null;
+		File imageName = getSourceFilename();
+		lastLoadedImageName = imageName.getName();
+		// Make sure input file is valid before trying to open it
+	    if (imageName != null ) {
+	        // open image for input
+	    	 BufferedImage inFile = null;
+				try {
+					inFile = ImageIO.read(imageName);
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	   pickedImage = inFile;
+	    }
+	    return pickedImage;
+	}
+	
 	/**
 	 * Method to ask the user to pick an image and 
 	 * load it into the application
 	 * @return BufferedImage retrieved by fileChooser
 	 */
-//	public Color[][] read() {
-//		BufferedImage pickedImage = null;
-//		File imageName = getSourceFilename();
-//		Color[][] beads = null;
-//		// Make sure input file is valid before trying to open it
-//		if (imageName != null ) {
-//			// open image for input
-//			BufferedImage inFile = null;
-//			try {
-//				inFile = ImageIO.read(imageName);
-//
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			pickedImage = inFile;
-//			Pixelator pixel = new Pixelator();
-//			beads = pixel.pixelate(pickedImage, 6);
-//		}
-//		return beads;
-//	}
-
-	public BufferedImage read() {
+	public Color[][] readImage() {
 		BufferedImage pickedImage = null;
 		File imageName = getSourceFilename();
 		Color[][] beads = null;
@@ -65,9 +69,9 @@ public class FileLoader {
 			}
 			pickedImage = inFile;
 			Pixelator pixel = new Pixelator();
-			pickedImage = pixel.pixelate(pickedImage, 3);
+			beads = pixel.pixelate(6, pickedImage,true);
 		}
-		return pickedImage;
+		return beads;
 	}
 
 	/**
