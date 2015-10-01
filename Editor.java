@@ -11,6 +11,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -31,6 +32,7 @@ public class Editor extends JFrame {
 	 */
 	private static final long serialVersionUID = -1905868719577381583L;
 	private JPanel contentPane;
+	final JLabel lblNewLabel;
 
 	/**
 	 * Launch the application.
@@ -189,7 +191,7 @@ public class Editor extends JFrame {
 		contentPane.add(editor, BorderLayout.CENTER);
 		editor.setLayout(new FlowLayout());
 		
-		final JLabel lblNewLabel = new JLabel();
+		lblNewLabel = new JLabel();
 		editor.add(lblNewLabel);
 		lblNewLabel.setBounds(10, 11, 414, 206);
 		
@@ -210,6 +212,10 @@ public class Editor extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				
+				OpenDialog openDialog = createDialog();
+				openDialog.setVisible(true);
+				/*
 				ImageIcon pickedImage = null;
 				
 				BufferedImage image;
@@ -229,9 +235,43 @@ public class Editor extends JFrame {
 					lblNewLabel.setText("Did not load Image correctly");
 				}
 				
-				repaint();
+				repaint();*/
+				
 			}
 			
 		});
+	}
+	
+	public void loadImage(BufferedImage image, int size, String colourRange){
+		try {
+			image = BeadImageConverter.pixelateImage(size, image);
+			
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+		ImageIcon pickedImage = null;
+		if(image != null){
+			if(image.getHeight() < lblNewLabel.getHeight() && image.getWidth() < lblNewLabel.getWidth()){
+				pickedImage = new ImageIcon(image);
+			}else{
+				pickedImage = new ImageIcon(image.getScaledInstance(this.getWidth(), 
+						this.getHeight(), Image.SCALE_SMOOTH));
+			}
+			lblNewLabel.setIcon(pickedImage);
+			lblNewLabel.setText("");
+		}
+		else{
+			lblNewLabel.setText("Did not load Image correctly");
+		}
+		
+		repaint();
+	}
+	
+	public OpenDialog createDialog(){
+		OpenDialog od = new OpenDialog(this);
+		od.setVisible(true);
+		
+		return od;
 	}
 }
