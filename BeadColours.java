@@ -4,7 +4,8 @@ import java.awt.Color;
 
 class BeadColours{
 	
-	public static final Color WHITE = new Color(196,198,210);
+	//public static final Color WHITE = new Color(196,198,210);
+	public static final Color WHITE = new Color(255,255,255);
 	public static final Color CREAM = new Color(185,186,158);
 	public static final Color YELLOW = new Color(187,149,8);
 	public static final Color ORANGE = new Color(171,1,1);
@@ -46,15 +47,25 @@ class BeadColours{
 	public static final Color CLEAR = new Color(240,251,251);
 	public static final Color FUCHSIA = new Color(252,83,122);
 	public static final Color CERISE = new Color(254,149,153);
+	
+	public static String getNameWithColour(Color colour){
+		for(int i = 0; i < colorArray.length; i++){
+			Color c = colorArray[i];
+			if(c.equals(colour)){
+				return colorNameArray[i];
+			}
+		}
+		return null;
+	}
 
 	public static final Color[] colorArray = {WHITE,CREAM,YELLOW,ORANGE,RED,PINK,PURPLE,BLUE,LIGHT_BLUE,GREEN,LIGHT_GREEN,DARK_BROWN,GREY,BLACK,REDDISH_BROWN,LIGHT_BROWN,
 	DARK_RED,FLESH, BEIGE,OLIVE_GREEN,CLARET,BURGUNDY,TURQUOISE,PASTEL_YELLOW,PASTEL_RED,PASTEL_PURPLE,PASTEL_BLUE,PASTEL_GREEN,
 	PASTEL_PINK,AZURE,TEDDY_BEAR_BROWN, DARK_GREY, LIGHT_GREY, CLEAR, FUCHSIA, CERISE};
 	
-	public static final String[] colorNameArray = {"WHITE","CREAM","YELLOW","ORANGE","RED","PINK","PURPLE","BLUE","LIGHT_BLUE",
-			"GREEN","LIGHT_GREEN","DARK_BROWN","GREY","BLACK","REDDISH_BROWN","LIGHT_BROWN",
-			"DARK_RED","FLESH", "BEIGE","OLIVE_GREEN","CLARET","BURGUNDY","TURQUOISE","PASTEL_YELLOW","PASTEL_RED","PASTEL_PURPLE",
-			"PASTEL_BLUE","PASTEL_GREEN","PASTEL_PINK","AZURE","TEDDY_BEAR_BROWN", "DARK_GREY", "LIGHT_GREY", "CLEAR", 
-			"FUCHSIA", "CERISE"};
+	public static final String[] colorNameArray = {"White","Cream","Yellow","Orange","Red","Pink","Purple","Blue","Light Blue",
+			"Green","Light Green","Dark Brown","Grey","Black","Reddish Brown","Light Brown",
+			"Dark Red","Flesh", "Beige","Olive Green","Claret","Burgundy","Turquiose","Pastel Yellow","Pastel Red","Pastel Purple",
+			"Pastel Blue","Pastel Green","Pastel Pink","Azure","Teddy Bear Brown","Dark Grey", "Light Grey", "Clear", 
+			"Fuchsia", "Cerise"};
 
 }
