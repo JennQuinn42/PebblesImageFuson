@@ -72,8 +72,9 @@ public class Pixelator {
 			{
 				if(image.getRGB(w, h) == 0){
 					bead[i][c] = null;
-				}else
-				bead[i][c] = new Color(image.getRGB(w, h));
+				}else{
+					bead[i][c] = new Color(image.getRGB(w, h));
+				}
 			}
 		}
 		return bead;
