@@ -53,6 +53,7 @@ public class Editor extends JFrame {
 	private JPanel panel;
 	private JMenuBar menuBar;
 	private JMenu mnMenu;
+	private JMenuItem mntmNew;
 	private JMenuItem mntmOpen;
 	private JMenuItem mntmSave;
 	private JMenuItem mntmExit;
@@ -130,6 +131,9 @@ public class Editor extends JFrame {
 		});
 		mnTheme.add(mntmFont);
 
+		mntmNew = new JMenuItem("New Image");
+		mnMenu.add(mntmNew);
+		
 		mntmOpen = new JMenuItem("Open");
 		mnMenu.add(mntmOpen);
 
@@ -311,6 +315,28 @@ public class Editor extends JFrame {
 			}
 
 		});
+		
+		mntmNew.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+
+				new Thread(new Runnable(){
+
+					@Override
+					public void run() {
+
+						NewDialog newDialog = createNewDialog();
+						newDialog.setVisible(true);
+					}
+
+				}).start();
+
+
+			}
+
+		});
+		
 		setBackgroundColour(Color.DARK_GRAY);
 		setTextColour(Color.LIGHT_GRAY);
 	}
@@ -370,6 +396,7 @@ public class Editor extends JFrame {
 
 		if(image != null){
 			lastLoadedImage = image;
+			
 		}
 		Color[][] beads = Pixelator.pixelate(size, image, true);
 		boardPanels = new JPanel[beads.length][beads[0].length];
@@ -435,11 +462,19 @@ public class Editor extends JFrame {
 		return od;
 	}
 
+	public NewDialog createNewDialog(){
+		NewDialog nd = new NewDialog(this);
+		nd.setVisible(true);
+
+		return nd;
+	}
+	
 	private void setBackgroundColour(Color newColour){
 		contentPane.setBackground(newColour);
 		panel.setBackground(newColour);
 		menuBar.setBackground(newColour);
 		mnMenu.setBackground(newColour);
+		mntmNew.setBackground(newColour);
 		mntmOpen.setBackground(newColour);
 		mntmSave.setBackground(newColour);
 		mntmExit.setBackground(newColour);
@@ -467,6 +502,7 @@ public class Editor extends JFrame {
 		panel.setForeground(newColour);
 		menuBar.setForeground(newColour);
 		mnMenu.setForeground(newColour);
+		mntmNew.setForeground(newColour);
 		mntmOpen.setForeground(newColour);
 		mntmSave.setForeground(newColour);
 		mntmExit.setForeground(newColour);
