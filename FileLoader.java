@@ -81,7 +81,10 @@ private String lastLoadedImageName;
 	static public File getSourceFilename () {
 		JFileChooser jfc = new JFileChooser(System.getProperty("user.dir"));
 		FileFilter filter =  new FileNameExtensionFilter("Picture Files","jpg", "jpeg", "png");
+		PreviewPanel preview = new PreviewPanel();
 		jfc.setFileFilter(filter);
+		jfc.setAccessory(preview);
+		jfc.addPropertyChangeListener(preview);
 		jfc.showOpenDialog(null);
 		return jfc.getSelectedFile();
 	}
