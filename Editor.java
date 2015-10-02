@@ -20,6 +20,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,15 +30,16 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Editor extends JFrame {
 
-	
+
 	/**
 	 * 
 	 */
@@ -48,6 +50,29 @@ public class Editor extends JFrame {
 	private Color currentSelection = BeadColours.colorArray[0];
 	private JPanel[][] boardPanels;
 	private BufferedImage lastLoadedImage;
+	private JPanel panel;
+	private JMenuBar menuBar;
+	private JMenu mnMenu;
+	private JMenuItem mntmOpen;
+	private JMenuItem mntmSave;
+	private JMenuItem mntmExit;
+	private JMenu mnTheme;
+	private JMenuItem mntmBackground;
+	private JMenuItem mntmFont;
+	private JPanel toolBar;
+	private JLabel lblTools;
+	private JPanel toolsPanel;
+	private ColourPanel colourPanel;
+	private JPanel perlerPanel;
+	private JToggleButton tglbtnPerlerBeads;
+	final JPanel perlerColourPanel;
+	final JPanel currentColourPanel;
+	final JLabel lblColourChooser;
+	private JPanel hamaPanel;
+	private JToggleButton tglbtnHama;
+	final JPanel hamaColourPanel;
+
+	private Color defaultColour;
 
 	/**
 	 * Launch the application.
@@ -64,7 +89,7 @@ public class Editor extends JFrame {
 			}
 		});
 	}
-	
+
 
 
 	/**
@@ -74,90 +99,114 @@ public class Editor extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 550);
 
-		
-		JMenuBar menuBar = new JMenuBar();
+		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
-		JMenu mnMenu = new JMenu("Menu");
+
+		mnMenu = new JMenu("Menu");
 		menuBar.add(mnMenu);
-		
-		JMenuItem mntmOpen = new JMenuItem("Open");
+
+		mnTheme = new JMenu("Theme");
+		menuBar.add(mnTheme);
+
+		mntmBackground = new JMenuItem("Background Colour");
+		mntmBackground.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0){
+				Color userColour = JColorChooser.showDialog(null, "Background Colour", defaultColour);
+				if(userColour != null){
+					setBackgroundColour(userColour);
+				}				
+			}
+		});
+		mnTheme.add(mntmBackground);
+
+		mntmFont = new JMenuItem("Font Colour");
+		mntmFont.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0){
+				Color userColour = JColorChooser.showDialog(null, "Font Colour", Color.BLACK);
+				if(userColour != null){
+					setTextColour(userColour);
+				}	
+			}
+		});
+		mnTheme.add(mntmFont);
+
+		mntmOpen = new JMenuItem("Open");
 		mnMenu.add(mntmOpen);
-		
-		JMenuItem mntmSave = new JMenuItem("Save Image");
+
+		mntmSave = new JMenuItem("Save Image");
 		mntmSave.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				saveImage();
 			}
-			
+
 		});
 		mnMenu.add(mntmSave);
-		
-		JMenuItem mntmExit = new JMenuItem("Exit");
+
+		mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				System.exit(0);
 			}
 		});
 		mnMenu.add(mntmExit);
-		
-		
-		
+
+
+
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
-		
-		JPanel toolBar = new JPanel();
+
+		toolBar = new JPanel();
 		toolBar.setPreferredSize(new Dimension(150, 100));
 		contentPane.add(toolBar, BorderLayout.WEST);
 		toolBar.setLayout(null);
-		
-		JPanel toolsPanel = new JPanel();
+
+		toolsPanel = new JPanel();
 		toolsPanel.setBounds(0, 0, 150, 121);
 		toolBar.add(toolsPanel);
 		toolsPanel.setLayout(null);
-		
-		JLabel lblTools = new JLabel("Tools");
+
+		lblTools = new JLabel("Tools");
 		lblTools.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblTools.setBounds(10, 11, 46, 14);
 		toolsPanel.add(lblTools);
-		
-		ColourPanel colourPanel = new ColourPanel();
+
+		colourPanel = new ColourPanel();
 		colourPanel.setBounds(0, 159, 150, 320);
 		toolBar.add(colourPanel);
 		colourPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		colourPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-		
-		
-		JPanel perlerPanel = new JPanel();
+
+
+		perlerPanel = new JPanel();
 		colourPanel.add(perlerPanel);
 		perlerPanel.setLayout(new BorderLayout(0, 0));
-		
-		JToggleButton tglbtnPerlerBeads = new JToggleButton("Perler Beads");
+
+		tglbtnPerlerBeads = new JToggleButton("Perler Beads");
 		tglbtnPerlerBeads.setMargin(new Insets(1,15,1,15));
-		
+
 		perlerPanel.add(tglbtnPerlerBeads, BorderLayout.NORTH);
-		
-		final JPanel perlerColourPanel = new JPanel();
+
+		perlerColourPanel = new JPanel();
 		perlerPanel.add(perlerColourPanel);
 		perlerColourPanel.setLayout(new GridLayout(8, 6, 0, 0));
-		
-		final JPanel currentColourPanel = new JPanel();
-		
+
+		currentColourPanel = new JPanel();
+
 		currentColourPanel.setBackground(currentSelection);
-		
-		final JLabel lblColourChooser = new JLabel("Colour Chooser");
-		
+
+		lblColourChooser = new JLabel("Colour Chooser");
+
 		ActionListener colorPressedListener = new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ColourButton cb = (ColourButton)e.getSource();	
 				Color col = cb.getColor();
-				
+
 				currentColourPanel.setBackground(col);
 				currentSelection = col;
 				int colourIndex = -1;
@@ -169,30 +218,30 @@ public class Editor extends JFrame {
 				}
 				String colourName = BeadColours.colorNameArray[colourIndex];
 				lblColourChooser.setText(colourName);
-			
+
 			}
-			
+
 		};
-		
+
 		for(int i = 0; i < 48; i++){
 			ColourButton temp = new ColourButton(Color.RED);
 			temp.addActionListener(colorPressedListener);
 			perlerColourPanel.add(temp);
 		}
-		
-		JPanel hamaPanel = new JPanel();
+
+		hamaPanel = new JPanel();
 		colourPanel.add(hamaPanel);
 		hamaPanel.setLayout(new BorderLayout(0, 0));
-		
-		JToggleButton tglbtnHama = new JToggleButton("Hama Beads");
+
+		tglbtnHama = new JToggleButton("Hama Beads");
 		tglbtnHama.setMargin(new Insets(1,15,1,15));
 		hamaPanel.add(tglbtnHama, BorderLayout.NORTH);
-		
-		
-		final JPanel hamaColourPanel = new JPanel();
+
+
+		hamaColourPanel = new JPanel();
 		hamaPanel.add(hamaColourPanel, BorderLayout.CENTER);
 		hamaColourPanel.setLayout(new GridLayout(4, 6, 0, 0));
-		
+
 		//Add hama bead colours
 		Color[] hamaColoursArray = BeadColours.colorArray;
 		for(int i = 0; i < hamaColoursArray.length; i++){
@@ -201,34 +250,34 @@ public class Editor extends JFrame {
 			temp.setToolTipText(BeadColours.getNameWithColour(hamaColoursArray[i]));
 			hamaColourPanel.add(temp);
 		}
-	
-		
-		JPanel panel = new JPanel();
+
+
+		panel = new JPanel();
 		panel.setBounds(0, 121, 150, 39);
 		toolBar.add(panel);
 		panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		toolsPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		panel.setLayout(null);
-		
+
 		lblColourChooser.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel.add(lblColourChooser);
 		lblColourChooser.setBounds(35, 11, 112, 17);
 		currentColourPanel.setBounds(5, 11, 24, 17);
 		currentColourPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-		
+
 		panel.add(currentColourPanel);
-		
+
 		editor = new JLayeredPane();
 		contentPane.add(editor, BorderLayout.CENTER);
 		editor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		editor.setLayout(new GridLayout());
-		
+
 		lblViewImage = new JLabel();
 		editor.add(lblViewImage, JLayeredPane.DEFAULT_LAYER);
 		lblViewImage.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		lblViewImage.setBounds(10, 11, 414, 206);
-		
-		
+
+
 		tglbtnPerlerBeads.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				perlerColourPanel.setVisible(!perlerColourPanel.isVisible());
@@ -240,64 +289,68 @@ public class Editor extends JFrame {
 				hamaColourPanel.setVisible(!hamaColourPanel.isVisible());
 			}
 		});
-		
+		tglbtnPerlerBeads.setVisible(false);
+
 		mntmOpen.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 				new Thread(new Runnable(){
 
 					@Override
 					public void run() {
-						
+
 						OpenDialog openDialog = createDialog();
 						openDialog.setVisible(true);
 					}
-					
+
 				}).start();
-				
-		
+
+
 			}
-			
+
 		});
+		setBackgroundColour(Color.DARK_GRAY);
+		setTextColour(Color.LIGHT_GRAY);
 	}
-	
+
 	private void saveImage(){
 		final BufferedImage image = new BufferedImage(lastLoadedImage.getWidth(),lastLoadedImage.getWidth(),lastLoadedImage.getType());
-		
-		Color temp = new Color(238,238,238);
-		
+
 		if(boardPanels != null){
-			
+
 			Graphics g = image.getGraphics();
 			int pixelSize = 3;
 			for(int w = 0 ; w < boardPanels.length; w ++)
 			{
 				for(int h = 0 ; h < boardPanels[0].length; h++)
 				{
-					if(!temp.equals(boardPanels[w][h].getBackground())){
-						g.setColor(boardPanels[w][h].getBackground());
-						g.fillRect(w*pixelSize, h*pixelSize, pixelSize, pixelSize);
-					}
-					
+					g.setColor(boardPanels[w][h].getBackground());
+					g.fillRect(w, h, pixelSize, pixelSize);
 
 				}
 			}
-			
+
 		}
-		
+
 		JFileChooser saver = new JFileChooser();
 		saver.setDialogTitle("Please choose a location to save..");
-		
+		//saver.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		//saver.showOpenDialog(this);
 		saver.showSaveDialog(this);
-		
+		//FileFilter filter = new FileNameExtensionFilter("Image file","png");
+		//saver.setFileFilter(filter);
+
 		String tempPath = saver.getSelectedFile().getAbsolutePath();
 		if(!tempPath.endsWith(".png")){
 			tempPath += ".png";
 		}
 		final String path = tempPath;
-	
+		//System.out.println(image);
+		//System.out.println(".png");
+		//System.out.println(path);
+
 		new Thread(new Runnable(){
 
 			@Override
@@ -308,12 +361,13 @@ public class Editor extends JFrame {
 					JOptionPane.showMessageDialog(null, "Error when saving image..");
 				}
 			}
-			
+
 		}).start();
 	}
-	
-	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp,JProgressBar bar){
-		
+
+	@SuppressWarnings("unused")
+	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp){
+
 		if(image != null){
 			lastLoadedImage = image;
 		}
@@ -321,11 +375,11 @@ public class Editor extends JFrame {
 		boardPanels = new JPanel[beads.length][beads[0].length];
 		System.out.println("pixelated");
 		ImageIcon pickedImage = null;
-		bar.setMaximum(beads[0].length);
+
 		if(beads != null){
 			editor.removeAll();
 			editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
-			
+
 			for(int i = 0; i < beads[0].length; ++i){
 				JPanel row = new JPanel(new GridLayout(1,beads.length,1,0));
 				for(int j = 0; j < beads.length; ++j){
@@ -333,7 +387,7 @@ public class Editor extends JFrame {
 					temp.setSize(size, size);
 					temp.setBackground(beads[j][i]);
 					boardPanels[j][i] = temp;
-
+					//editor.add(temp);
 					row.add(temp);
 					temp.setToolTipText(BeadColours.getNameWithColour(beads[j][i]));
 					temp.addMouseListener(new MouseListener(){
@@ -355,28 +409,81 @@ public class Editor extends JFrame {
 
 						@Override
 						public void mouseReleased(MouseEvent arg0) {}
-						
+
 					});
-					
-					
-					
+
+					//editor.paintComponents(editor.getGraphics());
+
 				}
 				editor.add(row);
+				System.out.println("line " + (i+1) + " of " + beads[0].length);
 			}
-			
-			
+
+
 		}else{
 			lblViewImage.setText("Did not load Image correctly");
 		}
-		
+
 		repaint();
-	
+
 	}
-	
+
 	public OpenDialog createDialog(){
 		OpenDialog od = new OpenDialog(this);
 		od.setVisible(true);
-		
+
 		return od;
+	}
+
+	private void setBackgroundColour(Color newColour){
+		contentPane.setBackground(newColour);
+		panel.setBackground(newColour);
+		menuBar.setBackground(newColour);
+		mnMenu.setBackground(newColour);
+		mntmOpen.setBackground(newColour);
+		mntmSave.setBackground(newColour);
+		mntmExit.setBackground(newColour);
+		mnTheme.setBackground(newColour);
+		mntmBackground.setBackground(newColour);
+		mntmFont.setBackground(newColour);
+		toolBar.setBackground(newColour);
+		lblTools.setBackground(newColour);
+		toolsPanel.setBackground(newColour);
+		colourPanel.setBackground(newColour);
+		perlerPanel.setBackground(newColour);
+		tglbtnPerlerBeads.setBackground(newColour);
+		perlerColourPanel.setBackground(newColour);
+		currentColourPanel.setBackground(newColour);
+		lblColourChooser.setBackground(newColour);
+		hamaPanel.setBackground(newColour);
+		tglbtnHama.setBackground(newColour);
+		hamaColourPanel.setBackground(newColour);
+		UIManager.put("ToggleButton.select", newColour);
+		SwingUtilities.updateComponentTreeUI(tglbtnHama);
+	}
+
+	private void setTextColour(Color newColour){
+		contentPane.setForeground(newColour);
+		panel.setForeground(newColour);
+		menuBar.setForeground(newColour);
+		mnMenu.setForeground(newColour);
+		mntmOpen.setForeground(newColour);
+		mntmSave.setForeground(newColour);
+		mntmExit.setForeground(newColour);
+		mnTheme.setForeground(newColour);
+		mntmBackground.setForeground(newColour);
+		mntmFont.setForeground(newColour);
+		toolBar.setForeground(newColour);
+		lblTools.setForeground(newColour);
+		toolsPanel.setForeground(newColour);
+		colourPanel.setForeground(newColour);
+		perlerPanel.setForeground(newColour);
+		tglbtnPerlerBeads.setForeground(newColour);
+		perlerColourPanel.setForeground(newColour);
+		currentColourPanel.setForeground(newColour);
+		lblColourChooser.setForeground(newColour);
+		hamaPanel.setForeground(newColour);
+		tglbtnHama.setForeground(newColour);
+		hamaColourPanel.setForeground(newColour);
 	}
 }
