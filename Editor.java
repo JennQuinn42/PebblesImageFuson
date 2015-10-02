@@ -30,12 +30,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 public class Editor extends JFrame {
 
@@ -52,7 +53,7 @@ public class Editor extends JFrame {
 	private BufferedImage lastLoadedImage;
 	private JPanel panel;
 	private JMenuBar menuBar;
-	private JMenu mnMenu;
+	private JMenu mnFile;
 	private JMenuItem mntmNew;
 	private JMenuItem mntmOpen;
 	private JMenuItem mntmSave;
@@ -72,8 +73,15 @@ public class Editor extends JFrame {
 	private JPanel hamaPanel;
 	private JToggleButton tglbtnHama;
 	final JPanel hamaColourPanel;
-
+	private JMenuItem mntmUndo;
+	private JMenu mnEdit;
 	private Color defaultColour;
+	private static boolean isClicked = false;
+	private Color bgColor;
+	private int pixelSize;
+
+	private DrawActionManager drawManager = new DrawActionManager();
+
 
 	/**
 	 * Launch the application.
@@ -103,17 +111,43 @@ public class Editor extends JFrame {
 		menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
-		mnMenu = new JMenu("Menu");
-		menuBar.add(mnMenu);
+		mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		mnEdit = new JMenu("Edit");
+		menuBar.add(mnEdit);
+
+		mntmUndo = new JMenuItem("Undo");
+		mnEdit.add(mntmUndo);
+		mntmUndo.setAccelerator(KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_Z, 
+				java.awt.Event.CTRL_MASK));
+		mntmUndo.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				drawManager.undo();
+			}
+
+		});
 
 		mnTheme = new JMenu("Theme");
 		menuBar.add(mnTheme);
 
+		mntmNew = new JMenuItem("New Image");
+		mnFile.add(mntmNew);
+		
+		mntmNew.setAccelerator(KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_N, 
+				java.awt.Event.CTRL_MASK));
+		
 		mntmBackground = new JMenuItem("Background Colour");
 		mntmBackground.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
 				Color userColour = JColorChooser.showDialog(null, "Background Colour", defaultColour);
+				
 				if(userColour != null){
+					bgColor = userColour;
 					setBackgroundColour(userColour);
 				}				
 			}
@@ -125,18 +159,18 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0){
 				Color userColour = JColorChooser.showDialog(null, "Font Colour", Color.BLACK);
 				if(userColour != null){
+					
 					setTextColour(userColour);
 				}	
 			}
 		});
 		mnTheme.add(mntmFont);
 
-		mntmNew = new JMenuItem("New Image");
-		mnMenu.add(mntmNew);
-		
 		mntmOpen = new JMenuItem("Open");
-		mnMenu.add(mntmOpen);
-
+		mnFile.add(mntmOpen);
+		mntmOpen.setAccelerator(KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_O, 
+				java.awt.Event.CTRL_MASK));
 		mntmSave = new JMenuItem("Save Image");
 		mntmSave.addActionListener(new ActionListener(){
 
@@ -146,15 +180,17 @@ public class Editor extends JFrame {
 			}
 
 		});
-		mnMenu.add(mntmSave);
-
+		mnFile.add(mntmSave);
+		mntmSave.setAccelerator(KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_S, 
+				java.awt.Event.CTRL_MASK));
 		mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				System.exit(0);
 			}
 		});
-		mnMenu.add(mntmExit);
+		mnFile.add(mntmExit);
 
 
 
@@ -337,6 +373,7 @@ public class Editor extends JFrame {
 
 		});
 		
+		bgColor = Color.DARK_GRAY;
 		setBackgroundColour(Color.DARK_GRAY);
 		setTextColour(Color.LIGHT_GRAY);
 	}
@@ -344,16 +381,21 @@ public class Editor extends JFrame {
 	private void saveImage(){
 		final BufferedImage image = new BufferedImage(lastLoadedImage.getWidth(),lastLoadedImage.getWidth(),lastLoadedImage.getType());
 
+		Color temp = bgColor;
+
 		if(boardPanels != null){
 
 			Graphics g = image.getGraphics();
-			int pixelSize = 3;
+			int pixelSize = this.pixelSize;
 			for(int w = 0 ; w < boardPanels.length; w ++)
 			{
 				for(int h = 0 ; h < boardPanels[0].length; h++)
 				{
-					g.setColor(boardPanels[w][h].getBackground());
-					g.fillRect(w, h, pixelSize, pixelSize);
+					if(!temp.equals(boardPanels[w][h].getBackground())){
+						g.setColor(boardPanels[w][h].getBackground());
+						g.fillRect(w*pixelSize, h*pixelSize, pixelSize, pixelSize);
+					}
+
 
 				}
 			}
@@ -362,20 +404,14 @@ public class Editor extends JFrame {
 
 		JFileChooser saver = new JFileChooser();
 		saver.setDialogTitle("Please choose a location to save..");
-		//saver.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		//saver.showOpenDialog(this);
+
 		saver.showSaveDialog(this);
-		//FileFilter filter = new FileNameExtensionFilter("Image file","png");
-		//saver.setFileFilter(filter);
 
 		String tempPath = saver.getSelectedFile().getAbsolutePath();
 		if(!tempPath.endsWith(".png")){
 			tempPath += ".png";
 		}
 		final String path = tempPath;
-		//System.out.println(image);
-		//System.out.println(".png");
-		//System.out.println(path);
 
 		new Thread(new Runnable(){
 
@@ -393,57 +429,83 @@ public class Editor extends JFrame {
 
 	@SuppressWarnings("unused")
 	public void loadImage(BufferedImage image, int size, String colourRange,boolean doCleanUp){
-
+		this.pixelSize = size;
 		if(image != null){
 			lastLoadedImage = image;
-			
 		}
 		Color[][] beads = Pixelator.pixelate(size, image, true);
 		boardPanels = new JPanel[beads.length][beads[0].length];
-		System.out.println("pixelated");
-		ImageIcon pickedImage = null;
 
+		
+		
+		ImageIcon pickedImage = null;
+	
 		if(beads != null){
 			editor.removeAll();
 			editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
 
 			for(int i = 0; i < beads[0].length; ++i){
-				JPanel row = new JPanel(new GridLayout(1,beads.length,1,0));
+				JPanel row = new JPanel(new GridLayout(1,beads.length,1,1));
+				row.setBackground(editor.getBackground());
 				for(int j = 0; j < beads.length; ++j){
 					final JPanel temp = new JPanel();
 					temp.setSize(size, size);
+					
 					temp.setBackground(beads[j][i]);
+					if(beads[j][i] == null){
+						temp.setBackground(bgColor);
+					}
 					boardPanels[j][i] = temp;
-					//editor.add(temp);
+
 					row.add(temp);
 					temp.setToolTipText(BeadColours.getNameWithColour(beads[j][i]));
 					temp.addMouseListener(new MouseListener(){
 
 						@Override
-						public void mouseClicked(MouseEvent arg0) {}
+						public void mouseClicked(MouseEvent arg0) {
+
+						}
 
 						@Override
-						public void mouseEntered(MouseEvent arg0) {}
+						public void mouseEntered(MouseEvent arg0) {
+							if(isClicked){
+								if(!drawManager.currentDrawing.getActionList().contains(temp)){
+									drawManager.currentDrawing.add(new DrawAction(temp,temp.getBackground()));
+									//drawManager.addDrawAction(new DrawAction(temp,temp.getBackground()));
+									temp.setBackground(currentSelection);
+									temp.setToolTipText(BeadColours.getNameWithColour(currentSelection));
+								}
+							}
+
+						}
 
 						@Override
 						public void mouseExited(MouseEvent arg0) {}
 
 						@Override
 						public void mousePressed(MouseEvent arg0) {
+
+							isClicked = true;
+							//drawManager.addDrawAction(new DrawAction(temp,temp.getBackground()));
+							drawManager.currentDrawing = new LongDrawAction(temp,temp.getBackground());
 							temp.setBackground(currentSelection);
 							temp.setToolTipText(BeadColours.getNameWithColour(currentSelection));
+
 						}
 
 						@Override
-						public void mouseReleased(MouseEvent arg0) {}
+						public void mouseReleased(MouseEvent arg0) {
+							isClicked = false;
+							drawManager.addDrawAction(drawManager.currentDrawing);
+							drawManager.currentDrawing = null;
+						}
 
 					});
 
-					//editor.paintComponents(editor.getGraphics());
+
 
 				}
 				editor.add(row);
-				System.out.println("line " + (i+1) + " of " + beads[0].length);
 			}
 
 
@@ -451,17 +513,16 @@ public class Editor extends JFrame {
 			lblViewImage.setText("Did not load Image correctly");
 		}
 
+		tglbtnHama.doClick();
+		tglbtnHama.doClick();
+		
 		repaint();
+		
+		
 
 	}
 
-	public OpenDialog createDialog(){
-		OpenDialog od = new OpenDialog(this);
-		od.setVisible(true);
-
-		return od;
-	}
-
+	
 	public NewDialog createNewDialog(){
 		NewDialog nd = new NewDialog(this);
 		nd.setVisible(true);
@@ -469,11 +530,20 @@ public class Editor extends JFrame {
 		return nd;
 	}
 	
+	public OpenDialog createDialog(){
+		OpenDialog od = new OpenDialog(this);
+		od.setVisible(true);
+
+		return od;
+	}
+
 	private void setBackgroundColour(Color newColour){
 		contentPane.setBackground(newColour);
 		panel.setBackground(newColour);
 		menuBar.setBackground(newColour);
-		mnMenu.setBackground(newColour);
+		mnFile.setBackground(newColour);
+		mnEdit.setBackground(newColour);
+		mntmUndo.setBackground(newColour);
 		mntmNew.setBackground(newColour);
 		mntmOpen.setBackground(newColour);
 		mntmSave.setBackground(newColour);
@@ -501,10 +571,12 @@ public class Editor extends JFrame {
 		contentPane.setForeground(newColour);
 		panel.setForeground(newColour);
 		menuBar.setForeground(newColour);
-		mnMenu.setForeground(newColour);
+		mnFile.setForeground(newColour);
 		mntmNew.setForeground(newColour);
 		mntmOpen.setForeground(newColour);
 		mntmSave.setForeground(newColour);
+		mnEdit.setForeground(newColour);
+		mntmUndo.setForeground(newColour);
 		mntmExit.setForeground(newColour);
 		mnTheme.setForeground(newColour);
 		mntmBackground.setForeground(newColour);
