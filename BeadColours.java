@@ -4,7 +4,6 @@ import java.awt.Color;
 
 class BeadColours{
 	
-	//public static final Color WHITE = new Color(196,198,210);
 	public static final Color WHITE = new Color(255,255,255);
 	public static final Color CREAM = new Color(185,186,158);
 	public static final Color YELLOW = new Color(187,149,8);
