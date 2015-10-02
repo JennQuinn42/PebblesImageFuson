@@ -1,7 +1,9 @@
 package com.jt.beads;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Graphics2D;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -69,6 +71,10 @@ public class NewDialog extends JDialog {
 						int height = (int)spnrHeight.getValue() * dummySize;
 						
 						imageFile = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+						Graphics2D g = imageFile.createGraphics();
+						g.setColor( Color.WHITE);
+						g.fillRect(0, 0, width, height);
+						g.dispose();
 						frame.loadImage(imageFile, dummySize,"Hama Midi",false);	
 						((JDialog)contentPanel.getParent().getParent().getParent().getParent()).dispose();
 					}
