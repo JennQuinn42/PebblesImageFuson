@@ -75,10 +75,12 @@ public class Editor extends JFrame {
 	final JPanel hamaColourPanel;
 	private JMenuItem mntmUndo;
 	private JMenu mnEdit;
+	private JMenuItem mntmInfo;
 	private Color defaultColour;
 	private static boolean isClicked = false;
 	private Color bgColor;
 	private int pixelSize;
+	private Color[][] beads;
 
 	private DrawActionManager drawManager = new DrawActionManager();
 
@@ -113,7 +115,7 @@ public class Editor extends JFrame {
 
 		mnFile = new JMenu("File");
 		menuBar.add(mnFile);
-		
+
 		mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
 
@@ -131,21 +133,25 @@ public class Editor extends JFrame {
 
 		});
 
+//		mntmInfo = new JMenuItem("Bead Information");
+//		mnEdit.add(mntmInfo);
+
+
 		mnTheme = new JMenu("Theme");
 		menuBar.add(mnTheme);
 
 		mntmNew = new JMenuItem("New Image");
 		mnFile.add(mntmNew);
-		
+
 		mntmNew.setAccelerator(KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_N, 
 				java.awt.Event.CTRL_MASK));
-		
+
 		mntmBackground = new JMenuItem("Background Colour");
 		mntmBackground.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0){
 				Color userColour = JColorChooser.showDialog(null, "Background Colour", defaultColour);
-				
+
 				if(userColour != null){
 					bgColor = userColour;
 					setBackgroundColour(userColour);
@@ -159,7 +165,7 @@ public class Editor extends JFrame {
 			public void actionPerformed(ActionEvent arg0){
 				Color userColour = JColorChooser.showDialog(null, "Font Colour", Color.BLACK);
 				if(userColour != null){
-					
+
 					setTextColour(userColour);
 				}	
 			}
@@ -351,7 +357,7 @@ public class Editor extends JFrame {
 			}
 
 		});
-		
+
 		mntmNew.addActionListener(new ActionListener(){
 
 			@Override
@@ -372,7 +378,28 @@ public class Editor extends JFrame {
 			}
 
 		});
-		
+//		
+//		mntmInfo.addActionListener(new ActionListener(){
+//
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//
+//				new Thread(new Runnable(){
+//
+//					@Override
+//					public void run() {
+//
+//						BeadInfo infoDialog = createInfoDialog();
+//						infoDialog.setVisible(true);
+//					}
+//
+//				}).start();
+//
+//
+//			}
+//
+//		});
+
 		bgColor = Color.DARK_GRAY;
 		setBackgroundColour(Color.DARK_GRAY);
 		setTextColour(Color.LIGHT_GRAY);
@@ -433,13 +460,13 @@ public class Editor extends JFrame {
 		if(image != null){
 			lastLoadedImage = image;
 		}
-		Color[][] beads = Pixelator.pixelate(size, image, true);
+		beads = Pixelator.pixelate(size, image, true);
 		boardPanels = new JPanel[beads.length][beads[0].length];
 
-		
-		
+
+
 		ImageIcon pickedImage = null;
-	
+
 		if(beads != null){
 			editor.removeAll();
 			editor.setLayout(new GridLayout(beads[0].length, 1, 1, 1));
@@ -450,7 +477,7 @@ public class Editor extends JFrame {
 				for(int j = 0; j < beads.length; ++j){
 					final JPanel temp = new JPanel();
 					temp.setSize(size, size);
-					
+
 					temp.setBackground(beads[j][i]);
 					if(beads[j][i] == null){
 						temp.setBackground(bgColor);
@@ -515,26 +542,33 @@ public class Editor extends JFrame {
 
 		tglbtnHama.doClick();
 		tglbtnHama.doClick();
-		
+
 		repaint();
-		
-		
+
+
 
 	}
 
-	
+
 	public NewDialog createNewDialog(){
 		NewDialog nd = new NewDialog(this);
 		nd.setVisible(true);
 
 		return nd;
 	}
-	
+
 	public OpenDialog createDialog(){
 		OpenDialog od = new OpenDialog(this);
 		od.setVisible(true);
 
 		return od;
+	}
+
+	public BeadInfo createInfoDialog(){
+		BeadInfo bi = new BeadInfo(this, beads);
+		bi.setVisible(true);
+
+		return bi;
 	}
 
 	private void setBackgroundColour(Color newColour){
@@ -544,6 +578,7 @@ public class Editor extends JFrame {
 		mnFile.setBackground(newColour);
 		mnEdit.setBackground(newColour);
 		mntmUndo.setBackground(newColour);
+		//mntmInfo.setBackground(newColour);
 		mntmNew.setBackground(newColour);
 		mntmOpen.setBackground(newColour);
 		mntmSave.setBackground(newColour);
@@ -577,6 +612,7 @@ public class Editor extends JFrame {
 		mntmSave.setForeground(newColour);
 		mnEdit.setForeground(newColour);
 		mntmUndo.setForeground(newColour);
+		//mntmInfo.setForeground(newColour);
 		mntmExit.setForeground(newColour);
 		mnTheme.setForeground(newColour);
 		mntmBackground.setForeground(newColour);
